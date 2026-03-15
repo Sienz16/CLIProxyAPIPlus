@@ -16,7 +16,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w -X 'main.Version=${VERSION
 
 FROM alpine:3.22.0
 
-RUN apk add --no-cache tzdata
+RUN apk add --no-cache tzdata wget
 
 RUN mkdir /CLIProxyAPI
 
@@ -31,5 +31,7 @@ EXPOSE 8317
 ENV TZ=Asia/Shanghai
 
 RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 CMD wget -qO- http://127.0.0.1:8317/ >/dev/null || exit 1
 
 CMD ["./CLIProxyAPIPlus"]
